@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This project simulates a real-time data pipeline using Apache Kafka, Python, and MongoDB. It simulates a scenario where medical entries about patients are generated, processed to extract key information (illness and medicine), and then stored in MongoDB. The pipeline is designed to run locally on Windows and can be later extended to run on Google Cloud.
+This project simulates a real-time data pipeline using Apache Kafka, Python, and MongoDB. It simulates a scenario where medical entries about patients are generated, processed to extract key information (illness and medicine), and then stored in MongoDB. The pipeline is designed to run locally on Windows and on Google Cloud.
 
 ## Architecture
 
