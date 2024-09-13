@@ -40,6 +40,8 @@ The architecture consists of the following components:
 3. Update the `log.dirs` entry in `config\server.properties` to use the correct Windows path format, e.g., `C:/kafka/kafka-logs`.
 4. Update the `dataDir` entry in `config\zookeeper.properties` to use the correct Windows path format, e.g., `C:/kafka/zookeeper-data`.
 
+Optiona: I also disabled automatic topic creation in Kafka (by default Kafka automatically create topics when a producer sends a message to a non-existing topic). To disabled it as well, add `auto.create.topics.enable=false` to `config\server.properties`.
+
 For more assistance, you can refer to this [tutorial video](https://www.youtube.com/watch?v=BwYFuhVhshI&t=1s).
 
 ### Running Kafka Locally
