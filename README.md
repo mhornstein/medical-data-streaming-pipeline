@@ -1,3 +1,4 @@
+
 # Kafka Medical Data Pipeline Project
 
 ## Project Overview
@@ -31,21 +32,25 @@ The architecture consists of the following components:
   - `pymongo`
   - `schema-registry-client` (for Kafka message schemas)
 
-### Installing Kafka (Local)
 
-If you're running this locally on Windows, you can install Kafka and ZooKeeper using the following steps:
+### Installing Kafka (Local) V
 
-1. Download Kafka from the official [Apache Kafka](https://kafka.apache.org/downloads) website.
-2. Start ZooKeeper:
-   ```bash
-   bin\windows\zookeeper-server-start.bat config\zookeeper.properties
-   ```
-3. Start Kafka:
-   ```bash
-   bin\windows\kafka-server-start.bat config\server.properties
-   ```
+1. Download the Kafka binary files from [Apache Kafka Downloads](https://kafka.apache.org/downloads). (I used version 2.13-3.8.0.)
+2. Extract the contents to an easily accessible path, e.g., `C:\kafka`.
+3. Update the `log.dirs` entry in `config\server.properties` to use the correct Windows path format, e.g., `C:/kafka/kafka-logs`.
+4. Update the `dataDir` entry in `config\zookeeper.properties` to use the correct Windows path format, e.g., `C:/kafka/zookeeper-data`.
 
-Alternatively, you can use Docker to run both Kafka and ZooKeeper in containers.
+For more assistance, you can refer to this [tutorial video](https://www.youtube.com/watch?v=BwYFuhVhshI&t=1s).
+
+### Running Kafka Locally
+
+To start and stop Kafka, use the `scripts\start_kafka.bat` and `scripts\stop_kafka.bat` scripts. These scripts will start/stop both the Kafka server and ZooKeeper, and also create the required topics.
+
+**Note**: Topics are not deleted automatically by `scripts\stop_kafka.bat` and must be removed manually. This is a known issue when running Kafka on Windows. For more information, refer to this discussion on [Stack Overflow](https://stackoverflow.com/questions/48114040/exception-during-topic-deletion-when-kafka-is-hosted-in-docker-in-windows).
+
+<hr>
+<hr>
+<hr>
 
 ## Running the Project Locally
 
