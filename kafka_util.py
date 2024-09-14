@@ -4,10 +4,10 @@ import sys
 from kafka.errors import KafkaError
 from kafka import KafkaConsumer
 
-def create_consumer(bootstrap_servers, consumer_group_id, dest_topic):
+def create_consumer(bootstrap_servers, consumer_group_id, source_topic):
     try:
         consumer = KafkaConsumer(
-            dest_topic,
+            source_topic,
             bootstrap_servers=bootstrap_servers,
             auto_offset_reset='earliest', # Start from the earliest message
             enable_auto_commit=True,

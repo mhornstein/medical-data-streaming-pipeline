@@ -48,4 +48,6 @@ def extract_diseases(text, validation_data):
 
     filtered_diseases = filtered_list + appos
 
+    filtered_diseases = [str(disease) for disease in filtered_diseases]
+
     return filtered_diseases
