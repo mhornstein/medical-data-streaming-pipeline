@@ -2,10 +2,9 @@ import os
 import pandas as pd
 import random
 import time
-from kafka import KafkaProducer
-from kafka.errors import KafkaError
-import json
 import sys
+
+from kafka_util import create_producer, send_to_kafka
 
 '''
 This Python script will:
@@ -19,18 +18,6 @@ DATA_DIR = './data/'
 METADATA_FILE = './metadata/query_metadata.csv'
 BOOTSTARP_SERVERS = 'localhost:9092'
 DEST_TOPIC = 'medical-entries'
-
-def create_producer(bootstrap_servers):
-    try:
-        producer = KafkaProducer(
-            bootstrap_servers=bootstrap_servers,
-            value_serializer=lambda v: json.dumps(v).encode('utf-8')
-        )
-        print("Kafka producer created successfully.")
-        return producer
-    except  KafkaError as e:
-        print(f"Failed to create Kafka producer: {e}")
-        sys.exit(1)
 
 def load_data(data_dir):
     data = {}
@@ -51,16 +38,6 @@ def load_query_metadata(metadata_file):
     query_metadata = pd.read_csv(metadata_file, dtype={'query_index': str}).set_index('query_index')
     query_metadata_dict = query_metadata.T.to_dict()
     return query_metadata_dict
-
-def send_to_kafka(producer, topic, message):
-    try:
-        producer.send(topic, message)
-        producer.flush()
-        print(f"Sent: {message}")
-    except KafkaError as e:
-        print(f"Failed to send message to Kafka: {e}")
-        sys.exit(1)
-
 
 def create_message(entry, query_metadata):
     sentence_text = entry['sentence_text'].iloc[0]

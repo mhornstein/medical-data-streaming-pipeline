@@ -1,7 +1,5 @@
-import json
 import sys
-from kafka import KafkaConsumer
-from kafka.errors import KafkaError
+from kafka_util import create_consumer, KafkaError
 from medical_entity_recognition import extract_diseases
 
 '''
@@ -15,22 +13,6 @@ This script assumes that the topic intended to be consumed from already exists.
 BOOTSTARP_SERVERS = 'localhost:9092'
 DEST_TOPIC = 'medical-entries'
 CONSMER_GROUP_ID = 'medical-entries-group'
-
-def create_consumer():
-    try:
-        consumer = KafkaConsumer(
-            DEST_TOPIC,
-            bootstrap_servers=BOOTSTARP_SERVERS,
-            auto_offset_reset='earliest', # Start from the earliest message
-            enable_auto_commit=True,
-            group_id=CONSMER_GROUP_ID, # unique identifier that allows multiple consumers to work together to read from the same Kafka topic, while ensuring that each partition of the topic is consumed by only one consumer in the group.
-            value_deserializer=lambda v: json.loads(v.decode('utf-8'))
-        )
-        print("Kafka consumer created successfully.")
-        return consumer
-    except KafkaError as e:
-        print(f"Failed to connect to Kafka server: {e}")
-        sys.exit(1)
 
 def listen_and_print(consumer):
     try:
@@ -47,5 +29,5 @@ def listen_and_print(consumer):
         sys.exit(1)
 
 if __name__ == "__main__":
-    consumer = create_consumer()
+    consumer = create_consumer(BOOTSTARP_SERVERS, CONSMER_GROUP_ID, DEST_TOPIC)
     listen_and_print(consumer)
