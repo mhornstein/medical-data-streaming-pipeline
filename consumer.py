@@ -35,9 +35,10 @@ def listen_and_print(consumer):
     try:
         for message in consumer:
             data = message.value
-            source_id = data['source_id']
             sentence_text = data['sentence_text']
-            print(f"{source_id}: {sentence_text}")
+            treatments = data['treatments']
+            query_metadata = data['query_metadata']
+            print(f"{sentence_text} | {treatments} | {query_metadata}\n")
     except KafkaError as e:
         print(f"Kafka error occurred: {e}")
         sys.exit(1)
