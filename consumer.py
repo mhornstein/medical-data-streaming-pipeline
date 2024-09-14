@@ -2,6 +2,7 @@ import json
 import sys
 from kafka import KafkaConsumer
 from kafka.errors import KafkaError
+from medical_entity_recognition import extract_diseases
 
 '''
 This script sets up a Kafka consumer to read messages from the specified topic and process them.
@@ -38,7 +39,9 @@ def listen_and_print(consumer):
             sentence_text = data['sentence_text']
             treatments = data['treatments']
             query_metadata = data['query_metadata']
-            print(f"{sentence_text} | {treatments} | {query_metadata}\n")
+            validation_data = query_metadata # TODO update protocol
+            filtered_diseases = extract_diseases(sentence_text, validation_data)
+            print(f"{sentence_text} | {treatments} | {query_metadata} | {filtered_diseases} \n")
     except KafkaError as e:
         print(f"Kafka error occurred: {e}")
         sys.exit(1)
