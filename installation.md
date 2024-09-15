@@ -22,9 +22,13 @@ Follow the official [WSL installation guide](https://docs.microsoft.com/en-us/wi
      ```bash
      wsl --install -d Ubuntu
      ```
+   - Set Ubuntu to be the default option:
+     ```bash
+     wsl --set-default Ubuntu
+     ```
 
 3. **Start WSL:**
-Run `wsl` in Command Prompt or PowerShell to start the WSL environment.
+Run ```wsl``` in Command Prompt or PowerShell to start the WSL environment.
 
 ### 2. Prepare WSL Environment
 
@@ -63,7 +67,34 @@ Add Confluent to your path by running:
      export PATH=$PATH:$CONFLUENT_HOME/bin
      ```
 
-### 3. Start Confluent Services
+### 3.  Configuring Kafka to Work with WSL
+
+1. **Find Out Your WSL IP Address**
+   - Open your WSL terminal and run:
+     ```bash
+     ip a
+     ```
+   - Note the IP address assigned to `eth0`, typically shown under `inet`. For example: `172.28.60.217`.
+
+2. **Update Kafka Configuration**
+   - Open the `server.properties` file located in the `etc\kafka` directory of your Kafka installation.
+   - Update the following properties:
+
+     ```properties
+     listeners=PLAINTEXT://0.0.0.0:9092
+     advertised.listeners=PLAINTEXT://<your-ip>:9092
+     ```
+
+     Replace `<your-ip>` with the IP address you noted earlier. For example:
+
+     ```properties
+     listeners=PLAINTEXT://0.0.0.0:9092
+     advertised.listeners=PLAINTEXT://172.28.60.217:9092
+     ```
+
+   - Save the changes.
+
+### 4. Start Confluent Services
 While you can use the Confluent CLI to manage services, in this guide, I used custom scripts to start the services.
 
 1. **Create Start Script:**
@@ -81,7 +112,7 @@ Create a file named `start_kafka_confluent.sh`:
      ```bash
      #!/bin/bash
 
-     # Set the Confluent Home Directory (optional - if done manually)
+     # Set the Confluent Home Directory (optional - in case not done manually)
      export CONFLUENT_HOME=~/confluent-7.7.0
      export PATH=$PATH:$CONFLUENT_HOME/bin
 
@@ -158,7 +189,7 @@ Start the services by running:
      ./start_kafka_confluent.sh
      ```
 
-### 4. Stop Confluent Services
+### 5. Stop Confluent Services
 
 To stop all services, simply shut down the WSL instance. This will terminate all running processes:
    ```bash
@@ -170,10 +201,12 @@ To start it again, you can start your Ubuntu instance by running:
    ```bash
    wsl
    ```
-   which will start the default WSL distribution, which is typically Ubuntu if you have it set as default. If you have multiple distributions and want to start a specific one, use:
+   If you have multiple distributions and want to start a specific one, use:
    ```bash
    wsl -d Ubuntu
    ```
+
+Please do not forget to update the new WSL ip in Kafka server as explained above for the new wsl instance.
  
 ## Additional References
 
