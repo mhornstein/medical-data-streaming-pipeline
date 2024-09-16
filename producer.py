@@ -4,7 +4,7 @@ import random
 import time
 import sys
 
-from kafka_util import create_producer, send_to_kafka
+from kafka_util import create_producer, send_to_kafka, load_schema
 from util import config
 
 '''
@@ -14,11 +14,6 @@ This Python script will:
 2. Randomly pick one line from a random CSV file every 10 seconds.
 3. Send the sentence_text along with the source_id (the filename) to the Kafka topic.
 '''
-
-data_dir = config['data_dir']
-metadata_file = config['metadata_file']
-bootstrap_servers =  config['bootstrap_servers']
-topic = config['source_topic']
 
 def load_data(data_dir):
     data = {}
@@ -72,7 +67,16 @@ def simulate_data_production(producer, topic, metadata_dict, data):
         time.sleep(10) # Wait for 10 seconds before sending the next entry as part of the simulation
 
 if __name__ == "__main__":
+    data_dir = config['data_dir']
+    metadata_file = config['metadata_file']
+    bootstrap_servers =  config['bootstrap_servers']
+    schema_registry_url = config['schema_registry_url']
+    topic = config['source_topic']
+    source_topic_schemea_path = config['source_topic_schemea_path']
+
     data = load_data(data_dir)
     metadata_dict = load_query_metadata(metadata_file)
-    producer = create_producer(bootstrap_servers)
+    value_schema = load_schema(source_topic_schemea_path)
+    producer = create_producer(bootstrap_servers, schema_registry_url, value_schema)
+
     simulate_data_production(producer, topic, metadata_dict, data)

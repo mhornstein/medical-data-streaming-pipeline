@@ -1,6 +1,12 @@
-bootstrap_servers: '172.28.60.217:9092'
-source_topic: 'medical-entries'
-dest_topic: 'processed-entries'
-consumer_group_id: 'medical-entries-group'
+server_url: '172.28.60.217'
+
 data_dir: './data/'
 metadata_file: './metadata/query_metadata.csv'
+
+source_topic: 'medical-entries'
+source_topic_schemea_path: './schemas/medical_treatment_schema.avsc'
+
+dest_topic: 'processed-entries'
+dest_topic_schemea_path: './schemas/processed_entries_schema.avsc'
+
+consumer_group_id: 'medical-entries-group'

@@ -1,0 +1,8 @@
+{
+  "type": "record",
+  "name": "ProcessedEntry",
+  "fields": [
+    { "name": "disease", "type": "string" },
+    { "name": "treatment", "type": "string" }
+  ]
+}

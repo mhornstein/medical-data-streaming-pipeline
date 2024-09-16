@@ -1,42 +1,53 @@
-from kafka import KafkaProducer
-import json
+from confluent_kafka.avro import AvroProducer, AvroConsumer
 import sys
-from kafka.errors import KafkaError
-from kafka import KafkaConsumer
+from confluent_kafka import avro
 
-def create_consumer(bootstrap_servers, consumer_group_id, source_topic):
+def create_consumer(bootstrap_servers, consumer_group_id, source_topic, schema_registry_url):
     try:
-        consumer = KafkaConsumer(
-            source_topic,
-            bootstrap_servers=bootstrap_servers,
-            auto_offset_reset='earliest', # Start from the earliest message
-            enable_auto_commit=True,
-            group_id=consumer_group_id, # unique identifier that allows multiple consumers to work together to read from the same Kafka topic, while ensuring that each partition of the topic is consumed by only one consumer in the group.
-            value_deserializer=lambda v: json.loads(v.decode('utf-8'))
+        consumer = AvroConsumer(
+            {
+                'bootstrap.servers': bootstrap_servers,
+                'group.id': consumer_group_id,
+                'auto.offset.reset': 'earliest',
+                'schema.registry.url': schema_registry_url
+            },
         )
-        print("Kafka consumer created successfully.")
+
+        consumer.subscribe([source_topic])
+
+        print("Consumer created successfully.")
         return consumer
-    except KafkaError as e:
-        print(f"Failed to connect to Kafka server: {e}")
+    except Exception as e:
+        print(f"Failed to connect to server: {e}")
         sys.exit(1)
 
-def create_producer(bootstrap_servers):
+def create_producer(bootstrap_servers, schema_registry_url, value_schema, key_schema=None):
     try:
-        producer = KafkaProducer(
-            bootstrap_servers=bootstrap_servers,
-            value_serializer=lambda v: json.dumps(v).encode('utf-8')
+        producer = AvroProducer(
+            {'bootstrap.servers': bootstrap_servers,
+            'schema.registry.url': schema_registry_url},
+            default_value_schema=value_schema,
+            default_key_schema=key_schema
         )
-        print("Kafka producer created successfully.")
+        print("Producer created successfully.")
         return producer
-    except KafkaError as e:
-        print(f"Failed to create Kafka producer: {e}")
+    except Exception as e:
+        print(f"Failed to create producer: {e}")
         sys.exit(1)
 
-def send_to_kafka(producer, topic, message):
+def send_to_kafka(producer, topic, message, timeout=10):
     try:
-        producer.send(topic, message)
-        producer.flush()
+        producer.produce(topic=topic, value=message)
+        producer.flush(timeout=timeout)
         print(f"Sent: {message}")
-    except KafkaError as e:
-        print(f"Failed to send message to Kafka: {e}")
+    except Exception as e:
+        print(f"Failed to send message to Kafka:\nMessage: {message}, Topic: {topic}, error: {e}")
+        sys.exit(1)
+
+def load_schema(schema_path):
+    try:
+        schema = avro.load(schema_path)
+        return schema
+    except Exception as e:
+        print(f"Failed to load schema: {e}")
         sys.exit(1)

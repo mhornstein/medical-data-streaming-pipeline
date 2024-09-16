@@ -1,0 +1,21 @@
+{
+  "type": "record",
+  "name": "MedicalThreatment",
+  "fields": [
+    { "name": "sentence_text", "type": "string" },
+    {
+      "name": "treatments",
+      "type": {
+        "type": "array",
+        "items": "string"
+      }
+    },
+    {
+      "name": "query_metadata",
+      "type": {
+        "type": "map",
+        "values": "string"
+      }
+    }
+  ]
+}
