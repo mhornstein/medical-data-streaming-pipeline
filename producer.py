@@ -18,7 +18,7 @@ This Python script will:
 data_dir = config['data_dir']
 metadata_file = config['metadata_file']
 bootstrap_servers =  config['bootstrap_servers']
-dest_topic = config['dest_topic']
+topic = config['source_topic']
 
 def load_data(data_dir):
     data = {}
@@ -75,4 +75,4 @@ if __name__ == "__main__":
     data = load_data(data_dir)
     metadata_dict = load_query_metadata(metadata_file)
     producer = create_producer(bootstrap_servers)
-    simulate_data_production(producer, dest_topic, metadata_dict, data)
+    simulate_data_production(producer, topic, metadata_dict, data)

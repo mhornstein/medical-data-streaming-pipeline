@@ -23,7 +23,7 @@ def create_message(disease, treatment):
         'treatment': treatment
     }
 
-def listen_and_process(consumer, producer):
+def listen_and_process(consumer, producer, dest_topic):
     try:
         for message in consumer:
             data = message.value
@@ -43,4 +43,4 @@ def listen_and_process(consumer, producer):
 if __name__ == "__main__":
     consumer = create_consumer(bootstrap_servers, consumer_group_id, source_topic)
     producer = create_producer(bootstrap_servers)
-    listen_and_process(consumer, producer)
+    listen_and_process(consumer, producer, dest_topic)
