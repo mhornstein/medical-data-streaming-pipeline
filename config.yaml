@@ -1,0 +1,6 @@
+bootstrap_servers: '172.28.60.217:9092'
+source_topic: 'medical-entries'
+dest_topic: 'processed-entries'
+consumer_group_id: 'medical-entries-group'
+data_dir: './data/'
+metadata_file: './metadata/query_metadata.csv'

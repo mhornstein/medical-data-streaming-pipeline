@@ -5,6 +5,7 @@ import time
 import sys
 
 from kafka_util import create_producer, send_to_kafka
+from util import config
 
 '''
 This Python script will:
@@ -14,10 +15,10 @@ This Python script will:
 3. Send the sentence_text along with the source_id (the filename) to the Kafka topic.
 '''
 
-DATA_DIR = './data/'
-METADATA_FILE = './metadata/query_metadata.csv'
-BOOTSTARP_SERVERS = 'localhost:9092'
-DEST_TOPIC = 'medical-entries'
+data_dir = config['data_dir']
+metadata_file = config['metadata_file']
+bootstrap_servers =  config['bootstrap_servers']
+dest_topic = config['dest_topic']
 
 def load_data(data_dir):
     data = {}
@@ -71,7 +72,7 @@ def simulate_data_production(producer, topic, metadata_dict, data):
         time.sleep(10) # Wait for 10 seconds before sending the next entry as part of the simulation
 
 if __name__ == "__main__":
-    data = load_data(DATA_DIR)
-    metadata_dict = load_query_metadata(METADATA_FILE)
-    producer = create_producer(BOOTSTARP_SERVERS)
-    simulate_data_production(producer, DEST_TOPIC, metadata_dict, data)
+    data = load_data(data_dir)
+    metadata_dict = load_query_metadata(metadata_file)
+    producer = create_producer(bootstrap_servers)
+    simulate_data_production(producer, dest_topic, metadata_dict, data)

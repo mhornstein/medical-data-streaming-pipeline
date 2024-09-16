@@ -2,6 +2,7 @@ import sys
 from kafka_util import create_consumer, create_producer, KafkaError, send_to_kafka
 from medical_entity_recognition import extract_diseases
 import itertools
+from util import config
 
 '''
 This script sets up a Kafka consumer to read messages from the specified topic and process them.
@@ -11,10 +12,10 @@ Kafka does not provide a built-in mechanism to prevent a consumer from starting 
 This script assumes that the topic intended to be consumed from already exists.
 '''
 
-BOOTSTARP_SERVERS = 'localhost:9092'
-SOURCE_TOPIC = 'medical-entries'
-DEST_TOPIC = 'processed-entries'
-CONSMER_GROUP_ID = 'medical-entries-group'
+bootstrap_servers = config['bootstrap_servers']
+source_topic = config['source_topic']
+dest_topic = config['dest_topic']
+consumer_group_id = config['consumer_group_id']
 
 def create_message(disease, treatment):
     return {
@@ -34,12 +35,12 @@ def listen_and_process(consumer, producer):
             print(f"{sentence_text} | {treatments} | {query_metadata} | {filtered_diseases} \n")
             for disease, treatment in itertools.product(filtered_diseases, treatments):
                 message = create_message(disease, treatment)
-                send_to_kafka(producer, DEST_TOPIC, message)
+                send_to_kafka(producer, dest_topic, message)
     except KafkaError as e:
         print(f"Kafka error occurred: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
-    consumer = create_consumer(BOOTSTARP_SERVERS, CONSMER_GROUP_ID, SOURCE_TOPIC)
-    producer = create_producer(BOOTSTARP_SERVERS)
+    consumer = create_consumer(bootstrap_servers, consumer_group_id, source_topic)
+    producer = create_producer(bootstrap_servers)
     listen_and_process(consumer, producer)
