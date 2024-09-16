@@ -156,6 +156,11 @@ Create a file named `start_kafka_confluent.sh`:
        jps
      }
 
+     print_url() {
+       external_ip=$(curl -s ifconfig.me)
+       echo "Bootstrap server available at: $external_ip:9092"
+     }
+
      # Start all services
      start_zookeeper
      start_kafka
@@ -171,7 +176,9 @@ Create a file named `start_kafka_confluent.sh`:
      # Check the status of services
      check_status
 
-     echo "All services started successfully."
+     echo "All services started."
+
+     print_url
      ```
 
 3. **Save and Exit:**
