@@ -30,39 +30,46 @@ sudo mkdir -p /usr/share/java/kafka-connect-java
 sudo curl -o /usr/share/java/kafka-connect-java/mysql-connector-java-8.0.13.jar https://repo.maven.apache.org/maven2/mysql/mysql-connector-java/8.0.13/mysql-connector-java-8.0.13.jar
 sudo curl -o /usr/share/java/kafka-connect-java/kafka-connect-jdbc-10.4.0.jar https://packages.confluent.io/maven/io/confluent/kafka-connect-jdbc/10.4.0/kafka-connect-jdbc-10.4.0.jar
 
-echo "Step 6: Start Zookeeper"
+echo "Step 6: Updating Kafka server.properties configuration to expose the machine IP"
+IP_ADDRESS=$(hostname -I | awk '{print $1}')
+CONFIG_FILE="$CONFLUENT_HOME/etc/kafka/server.properties"
+echo "# Adding server socket use config" >> $CONFIG_FILE
+echo "listeners=PLAINTEXT://0.0.0.0:9092" >> $CONFIG_FILE
+echo "advertised.listeners=PLAINTEXT://$IP_ADDRESS:9092" >> $CONFIG_FILE
+
+echo "Step 7: Start Zookeeper"
 $CONFLUENT_HOME/bin/zookeeper-server-start $CONFLUENT_HOME/etc/kafka/zookeeper.properties > zookeeper.log 2>&1 &
 
-echo "Step 7: Start Kafka Server"
+echo "Step 8: Start Kafka Server"
 $CONFLUENT_HOME/bin/kafka-server-start $CONFLUENT_HOME/etc/kafka/server.properties > kafka-server.log 2>&1 &
 
-echo "Step 8: Start Schema Registry"
+echo "Step 9: Start Schema Registry"
 $CONFLUENT_HOME/bin/schema-registry-start $CONFLUENT_HOME/etc/schema-registry/schema-registry.properties > schema-registry.log 2>&1 &
 
-echo "Step 9: Start Kafka Connect"
+echo "Step 10: Start Kafka Connect"
 $CONFLUENT_HOME/bin/connect-distributed $CONFLUENT_HOME/etc/kafka/connect-distributed.properties > kafka-connect.log 2>&1 &
 
-echo "Step 10: Sleep for 30 sec to let all service the time to lunch"
+echo "Step 11: Sleep for 30 sec to let all service the time to lunch"
 sleep 30
 
-echo "Step 11: Create the 'processed-entries' Kafka topic"
+echo "Step 12: Create the 'processed-entries' Kafka topic"
 $CONFLUENT_HOME/bin/kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic processed-entries
 
-echo "Step 12: Register Avro schema for 'processed-entries' topic"
+echo "Step 13: Register Avro schema for 'processed-entries' topic"
 curl -X POST -H "Content-Type: application/vnd.schemaregistry.v1+json" \
     --data '{"schema": "{\"type\":\"record\",\"name\":\"ProcessedEntry\",\"fields\":[{\"name\":\"disease\",\"type\":\"string\"},{\"name\":\"treatment\",\"type\":\"string\"}]}"}' \
     http://localhost:8081/subjects/processed-entries-value/versions
 
-echo "Step 13: Create the 'medical-entries' Kafka topic"
+echo "Step 14: Create the 'medical-entries' Kafka topic"
 $CONFLUENT_HOME/bin/kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic medical-entries
 
-echo "Step 14: Registering Avro schema for 'medical-entries' topic"
+echo "Step 15: Registering Avro schema for 'medical-entries' topic"
 curl -X POST -H "Content-Type: application/vnd.schemaregistry.v1+json" \
     --data '{"schema": "{\"type\":\"record\",\"name\":\"MedicalThreatment\",\"fields\":[{\"name\":\"sentence_text\",\"type\":\"string\"},{\"name\":\"treatments\",\"type\":{\"type\":\"array\",\"items\":\"string\"}},{\"name\":\"query_metadata\",\"type\":{\"type\":\"map\",\"values\":\"string\"}}]}"}' \
     http://localhost:8081/subjects/medical-entries-value/versions
 
 
-echo "Step 15: Configure Kafka MySQL Sink Connector"
+echo "Step 16: Configure Kafka MySQL Sink Connector"
 cat <<EOF > mysql-sink-connector.json
 {
   "name": "mysql-sink-connector",
@@ -86,7 +93,7 @@ EOF
 
 curl -X POST -H "Content-Type: application/json" --data @mysql-sink-connector.json http://localhost:8083/connectors
 
-echo "Step 16: Publish a message to 'processed-entries' topic"
+echo "Step 17: Publish a message to 'processed-entries' topic"
 cat <<EOF > processed-entry.json
 {"disease": "teratoma syndrome", "treatment": "Surgical resection"}
 EOF
@@ -95,7 +102,7 @@ $CONFLUENT_HOME/bin/kafka-avro-console-producer \
   --broker-list localhost:9092 --topic processed-entries \
   --property value.schema='{"type":"record","name":"ProcessedEntry","fields":[{"name":"disease","type":"string"},{"name":"treatment","type":"string"}]}' < processed-entry.json
 
-echo "Step 17: Verify Data Insertion into MySQL"
+echo "Step 18: Verify Data Insertion into MySQL"
 echo "------------------------------------------"
 echo "1. Log in to MySQL with the following command:"
 echo "   mysql -u kafka_user -p"
@@ -106,3 +113,7 @@ echo "4. Retrieve and display the inserted records by running this query:"
 echo "   SELECT * FROM processed_entries;"
 echo "------------------------------------------"
 echo "Review the query output to confirm that the data has been successfully inserted into the 'processed_entries' table."
+echo ""
+
+echo "Step 19: Configure the Clients"
+echo "Please update the Server IP address in the clients' configuration to: $IP_ADDRESS"
