@@ -1,0 +1,10 @@
+query_index,mc_ent.root.dep_,str(mc_ent.root.head),mc_ent.root.head.dep_
+1,nsubjpass,treated,ROOT
+2,nmod,*,nsubjpass
+3,nmod,remedy,*
+4,nmod,treatment,*
+5,dobj,cures,*
+6,nmod,cure,*
+7,dobj,treat,*
+8,dobj,treats,*
+9,nmod,used,*
