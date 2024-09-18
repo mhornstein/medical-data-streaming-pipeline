@@ -1,156 +1,91 @@
-
-# Kafka Medical Data Pipeline Project
+# Kafka Pipeline - Medical Text Mining
 
 ## Project Overview
 
-This project simulates a real-time data pipeline using Apache Kafka, Python, and MongoDB. It simulates a scenario where medical entries about patients are generated, processed to extract key information (illness and medicine), and then stored in MongoDB. The pipeline is designed to run locally on Windows and on Google Cloud.
+This project simulates a real-time data pipeline using Apache Kafka, Python, Spacy, and MySQL. It models a scenario where medical entries about medical threatment are generated, processed to extract key information (illness and medicine), and then stored in MySQL.
 
 ## Architecture
 
-The architecture consists of the following components:
+The following diagram illustrates the architecture from both the business and implementation perspectives:
 
-1. **Data Generation (Producer)**: A Python script reads medical entries from a CSV file and publishes them to a Kafka topic.
-2. **Data Processing (Consumer)**: A Kafka consumer listens to the topic, applies heuristic-based logic to extract illness and medicine information from the medical entry, and publishes the processed data to another Kafka topic.
-3. **Data Storage (MongoDB)**: The processed data is consumed by a MongoDB sink connector and stored in a MongoDB collection.
-4. **Monitoring & Error Handling**: The pipeline includes logging and error handling through a dead letter queue (DLQ) for failed messages.
+- **Picture placeholder**
 
-## Features
+## Platform
 
-- **Local Deployment**: Run Kafka and MongoDB locally on Windows using Python scripts.
-- **Heuristic-Based Processing**: Extract illness and medicine from medical entries using rule-based heuristics.
-- **Kafka to MongoDB Integration**: Use Kafka Connect to seamlessly load processed data into MongoDB.
-- **Cloud Integration**: The project can be extended to run on Google Cloud with Kafka or Google Pub/Sub, and MongoDB Atlas.
+- **Kafka Consumers/Producer**: Run on Windows 10 with Python 3.10.8
+- **Kafka Platform and MySQL**: Run on Ubuntu via WSL (Windows Subsystem for Linux)
 
-## Prerequisites
+## Installation
 
-- **Python 3.8+**
-- **Kafka & ZooKeeper** (Installed locally or using Docker)
-- **MongoDB** (Local instance or MongoDB Atlas for cloud)
-- **Python Packages**:
-  - `kafka-python`
-  - `confluent-kafka`
-  - `pymongo`
-  - `schema-registry-client` (for Kafka message schemas)
+### 1. Install WSL 2 on Windows
 
+1. **Download and Install WSL 2:**
+   Follow the official [WSL installation guide](https://docs.microsoft.com/en-us/windows/wsl/install) to install WSL 2 on your Windows machine.
 
-### Installing Kafka (Local) V
+2. **Verify Installation:**
+   - Open Command Prompt or PowerShell and run:
+     ```bash
+     wsl --list --verbose
+     ```
+   - If Ubuntu is not listed, install it by running:
+     ```bash
+     wsl --install -d Ubuntu
+     ```
+   - Set Ubuntu as the default distribution:
+     ```bash
+     wsl --set-default Ubuntu
+     ```
 
-1. Download the Kafka binary files from [Apache Kafka Downloads](https://kafka.apache.org/downloads). (I used version 2.13-3.8.0.)
-2. Extract the contents to an easily accessible path, e.g., `C:\kafka`.
-3. Update the `log.dirs` entry in `config\server.properties` to use the correct Windows path format, e.g., `C:/kafka/kafka-logs`.
-4. Update the `dataDir` entry in `config\zookeeper.properties` to use the correct Windows path format, e.g., `C:/kafka/zookeeper-data`.
+3. **Start WSL:**
+   Run `wsl` in Command Prompt or PowerShell to start the WSL environment.
 
-Optiona: I also disabled automatic topic creation in Kafka (by default Kafka automatically create topics when a producer sends a message to a non-existing topic). To disabled it as well, add `auto.create.topics.enable=false` to `config\server.properties`.
+### 2. Set Up MySQL DB and Confluent Platform on Ubuntu
 
-For more assistance, you can refer to this [tutorial video](https://www.youtube.com/watch?v=BwYFuhVhshI&t=1s).
+This is done using the `setup_confluent_platform.sh` Script.
+This script installs and configures MySQL DB and Confluent Platform 7.7.0 on Ubuntu, including:
+- Starting MySQL, creating a user, and setting up the database.
+- Starting Zookeeper, Kafka server, Schema Registry, and Kafka Connect services.
+- Creating Kafka topics with Avro schemas.
+- Configuring and deploying a Kafka Sink Connector to MySQL.
+- Inserting a test entry into Kafka topics to validate the setup.
 
-### Running Kafka Locally
+At the end, the script provides instructions for:
+- Verifying data insertion in MySQL.
+- Determining the IP address needed to connect to Kafka from Kafka producer and consumer clients.
 
-To start and stop Kafka, use the `scripts\start_kafka.bat` and `scripts\stop_kafka.bat` scripts. These scripts will start/stop both the Kafka server and ZooKeeper, and also create the required topics.
+1. **Create and Edit the Setup Script:**
+   - Navigate to your home directory:
+     ```bash
+     cd ~
+     ```
+   - Create and edit the script `setup_confluent_platform.sh`:
+     ```bash
+     nano setup_confluent_platform.sh
+     ```
+   - Copy the content from the GitHub repository (`scripts\setup_confluent_platform.sh`) into the file.
+   - Save and exit by pressing `Ctrl+X`, then `Y` to confirm, and `Enter` to exit.
 
-**Note**: Topics are not deleted automatically by `scripts\stop_kafka.bat` and must be removed manually. This is a known issue when running Kafka on Windows. For more information, refer to this discussion on [Stack Overflow](https://stackoverflow.com/questions/48114040/exception-during-topic-deletion-when-kafka-is-hosted-in-docker-in-windows).
-
-<hr>
-<hr>
-<hr>
-
-## Running the Project Locally
-
-### Step 1: Set up Kafka Topics
-
-1. Create a topic for the raw medical entries:
+2. **Make the Script Executable:**
    ```bash
-   bin\windows\kafka-topics.bat --create --topic medical-entries --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+   chmod +x setup_confluent_platform.sh
    ```
 
-2. Create a topic for the processed data (illness and medicine):
+3. **Run the Script:**
+   Start the services by running:
    ```bash
-   bin\windows\kafka-topics.bat --create --topic processed-entries --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+   ./setup_confluent_platform.sh
    ```
+   Wait for the script to complete. At the end, the IP address of the server will be displayed.
 
-### Step 2: Producer - Generate and Push Medical Entries
+### 3. Run Producer and Consumer on Windows
 
-1. Write a Python script to read a CSV file containing medical data and publish the entries to Kafka.
-   
-   Example CSV format:
-   ```csv
-   patient_id,medical_entry,timestamp
-   1,"Patient shows signs of flu. Prescribed ibuprofen.",2024-01-01 12:00
-   ```
+1. **Update Configuration:**
+   - In `src/config.yaml`, update the `server_url` entry with the IP address provided by the script in the previous step. For example:
+    `server_url: '172.28.60.217'`
 
-   Example Producer Code:
-   ```python
-   from kafka import KafkaProducer
-   import csv
+2. **Run the Producer and Consumer:**
+   - Execute the `start_kafka_producer_consumer.bat` script.
 
-   producer = KafkaProducer(bootstrap_servers='localhost:9092')
+The producer will output the entries it produces, and the consumer will display the entries it consumes. Periodically check the MySQL table for updates.
 
-   with open('medical_data.csv', 'r') as file:
-       reader = csv.reader(file)
-       for row in reader:
-           producer.send('medical-entries', value=','.join(row).encode('utf-8'))
-   ```
-
-### Step 3: Consumer - Extract Illness and Medicine
-
-1. Write a Python consumer that applies heuristics to extract illness and medicine information from the Kafka topic.
-
-   Example Consumer Code:
-   ```python
-   from kafka import KafkaConsumer, KafkaProducer
-   import re
-
-   consumer = KafkaConsumer('medical-entries', bootstrap_servers='localhost:9092')
-   producer = KafkaProducer(bootstrap_servers='localhost:9092')
-
-   for message in consumer:
-       medical_entry = message.value.decode('utf-8')
-       illness = re.search(r'signs of (\w+)', medical_entry).group(1)
-       medicine = re.search(r'Prescribed (\w+)', medical_entry).group(1)
-       processed_entry = f"Illness: {illness}, Medicine: {medicine}"
-       producer.send('processed-entries', value=processed_entry.encode('utf-8'))
-   ```
-
-### Step 4: Load Processed Data into MongoDB
-
-1. Set up **Kafka Connect** with the **MongoDB Sink Connector** to automatically consume the `processed-entries` Kafka topic and insert the records into a MongoDB collection.
-   
-   MongoDB Sink Configuration Example:
-   ```json
-   {
-     "name": "mongo-sink-connector",
-     "config": {
-       "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
-       "tasks.max": "1",
-       "topics": "processed-entries",
-       "connection.uri": "mongodb://localhost:27017",
-       "database": "medical",
-       "collection": "processed_entries",
-       "key.converter": "org.apache.kafka.connect.storage.StringConverter",
-       "value.converter": "org.apache.kafka.connect.storage.StringConverter"
-     }
-   }
-   ```
-
-### Step 5: Error Handling and Logging
-
-- Set up a **Dead Letter Queue (DLQ)** to capture any failed messages. You can create another Kafka topic (`dlq-topic`) to route failed messages.
-- Implement logging using Python’s `logging` module to track the status of producer/consumer operations.
-
-### Running the Project on Google Cloud
-
-1. **Kafka Alternative**: Deploy Kafka on **Google Kubernetes Engine (GKE)** or use **Google Cloud Pub/Sub** as an alternative to Kafka.
-2. **MongoDB on Cloud**: Use **MongoDB Atlas** for cloud MongoDB hosting.
-3. **Monitoring**: Integrate **Google Cloud Monitoring** for real-time insights on your pipeline’s performance and health.
-4. **Scaling**: Utilize **autoscaling** in GKE for scaling your pipeline based on demand.
-
-## Future Enhancements
-
-- **Schema Management**: Use Avro or Protobuf for message serialization and schema enforcement.
-- **Natural Language Processing (NLP)**: Improve illness and medicine extraction with more advanced NLP techniques or use pre-trained models.
-- **Batch Processing**: Incorporate batch processing using Apache Spark or Google Dataproc for larger datasets.
-- **Cloud Storage**: Store raw medical entries in **Google Cloud Storage** for backup and further batch analysis.
-
-## Conclusion
-
-This project is designed to demonstrate key data engineering concepts, including real-time streaming with Kafka, heuristic-based data processing, and integration with MongoDB. By running this both locally and on Google Cloud, you will gain experience in building scalable, cloud-ready data pipelines.
+- **output placeholder**
