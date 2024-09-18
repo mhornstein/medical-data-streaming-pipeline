@@ -1,7 +1,15 @@
 #!/bin/bash
 
-# This script installs and configures Confluent Platform 7.7.0 on Ubuntu, starts necessary services, 
-# creates Kafka topics with Avro schemas, and sets up a Kafka sink connector to MySQL.
+# This script installs and configures MySQL DB and Confluent Platform 7.7.0 on Ubuntu, including:
+# - Starting MySQL, creating a user, and setting up the database
+# - Starting Zookeeper, Kafka server, Schema Registry, and Kafka Connect services
+# - Creating Kafka topics with Avro schemas
+# - Configuring and deploying a Kafka Sink Connector to MySQL
+# - Inserting a test entry into Kafka topics to validate the setup
+# 
+# At the end, the script provides instructions for:
+# - Verifying data insertion in MySQL
+# - Determining the IP address needed to connect to Kafka from Kafka producer and consumer clients
 
 echo "Step 1: Update the system and install necessary dependencies"
 sudo apt update -y
