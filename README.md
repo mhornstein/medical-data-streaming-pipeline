@@ -1,14 +1,25 @@
 # Kafka Pipeline - Medical Text Mining
 
-## Project Overview
+## Project Overview  
 
 This project simulates a real-time data pipeline using Apache Kafka, Python, Spacy, and MySQL. It models a scenario where medical entries about medical threatment are generated, processed to extract key information (illness and medicine), and then stored in MySQL.
 
-## Architecture
+The pipeline builds upon an existing NLP project developed as part of the NLP course I took during my Master’s degree ([NLP-4](https://github.com/mhornstein/NLP-4)). That project focused on medical information extraction using natural language processing methods. In this new project, the goal was to automate and scale the process by integrating Apache Kafka, enabling real-time, scalable data processing. This approach allowed me to explore Kafka's capabilities in-depth.  
 
-The following diagram illustrates the architecture from both the business and implementation perspectives:
+## Architecture  
 
-- **Picture placeholder**
+The following diagram provides an overview of the system architecture from both business and technical perspectives:  
+
+![Architecture Diagram](docs/pics/architecture_diagram.PNG)  
+
+1. **Data collection**  
+   Data is collected by executing queries against the **SPIKE API**. For more information about this API, refer to the research paper: [Interactive Extractive Search over Biomedical Data](https://www.semanticscholar.org/paper/Interactive-Extractive-Search-over-Biomedical-Taub-Tabib-Shlain/e673f54c4005931fd3392bbf95c80a9f5024d5c4).   
+
+2. **Text Augmentation & Enrichment**  
+   The retrieved data is processed to extract the required information, i.e. illnesses and medicines. This process uses metadata from the queries to apply heuristic-based extraction methods. Detailed methods and evaluations can be found on pages 5–11 of the original [project report](https://github.com/mhornstein/NLP-4/blob/main/report.pdf). Kafka topics are used to manage the flow of raw data and processed results.  
+
+3. **Data Storage**  
+   Processed results are stored in a MySQL database using Kafka's Sink Connector (This connector simplifies data integration by automating the transfer of Kafka topic data into relational database tables).
 
 ## Platform
 
