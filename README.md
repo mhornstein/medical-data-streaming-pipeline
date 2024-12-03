@@ -12,8 +12,8 @@ The following diagram illustrates the architecture from both the business and im
 
 ## Platform
 
-- **Kafka Consumers/Producer**: Run on Windows 10 with Python 3.10.8
-- **Kafka Platform and MySQL**: Run on Ubuntu via WSL (Windows Subsystem for Linux)
+- **Kafka Consumers/Producer**: Runs on Windows 10 with Python 3.10.8
+- **Kafka Platform and MySQL**: Runs on Ubuntu via WSL (Windows Subsystem for Linux)
 
 ## Installation
 
