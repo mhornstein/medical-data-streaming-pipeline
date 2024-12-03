@@ -78,6 +78,7 @@ At the end, the script provides instructions for:
    Wait for the script to complete. At the end, the IP address of the server will be displayed.
 
 ### 3. Run Producer and Consumer on Windows
+Make sure Kafka is installed on your Windows machine. then: 
 
 1. **Update Configuration:**
    - In `src/config.yaml`, update the `server_url` entry with the IP address provided by the script in the previous step. For example:
