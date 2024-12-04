@@ -2,9 +2,9 @@
 
 ## Project Overview  
 
-This project simulates a real-time data pipeline using Apache Kafka, Python, Spacy, and MySQL. It models a scenario where medical texts about medical treatment are crawled, processed to extract key information (disease and treatment), and then stored in MySQL.
+This project simulates a real-time data pipeline using Apache Kafka, Python, Spacy, and MySQL. It models a scenario where medical texts about medical treatments are crawled, processed to extract key information (disease and treatment), and then stored in MySQL.
 
-The pipeline builds upon an existing NLP project developed as part of the NLP course I took during my Master’s degree ([NLP-4](https://github.com/mhornstein/NLP-4)). That project focused on medical information extraction using natural language processing methods. In this new project, the goal was to automate and scale the process by integrating Apache Kafka, enabling real-time, scalable data processing. This approach allowed me to explore Kafka's capabilities in-depth.
+The pipeline builds upon an existing NLP project developed as part of the NLP course I took during my Master’s degree ([NLP-4](https://github.com/mhornstein/NLP-4)). That project focused on medical information extraction using natural language processing methods. In this new project, the goal was to automate and scale the process by integrating Apache Kafka, enabling real-time, scalable data processing. This approach allowed me to explore Kafka's capabilities.
 
 <img src="docs/pics/output_example.PNG" width="500" alt="Output Example">
 
